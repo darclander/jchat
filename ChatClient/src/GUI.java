@@ -13,19 +13,15 @@ public class GUI implements PropertyChangeListener {
     private JLabel profileName;
     private int width = 960;
     private int height = 540;
-    private ChatClient model;
     private JTextField messageBox;
     private Login loginDialog;
     private JButton sendButton;
 
-    public GUI(ChatClient model) {
+    public GUI() {
         this.messageBox = new JTextField("Write a message");
-        this.model = model;
         loginDialog = new Login(this);
         loginDialog.getDialog().setVisible(true);
         makeFrame();
-
-        model.addObserver(this);
         makeBody();
         renderWindow();
 
@@ -196,7 +192,6 @@ public class GUI implements PropertyChangeListener {
 class Login {
 
     private JDialog dialog;
-    private JLabel lblUsername = new JLabel ("Username");
     private JTextField txtfldUsername = new JTextField(24);
     private JButton buttonLogin = new JButton("Login");
 
@@ -204,6 +199,7 @@ class Login {
         dialog = new JDialog(parent.getFrame());
 
         JPanel panel1 = new JPanel(new GridLayout(3,1));
+        JLabel lblUsername = new JLabel("Username");
         panel1.add(lblUsername);
         panel1.add(txtfldUsername);
         panel1.add(buttonLogin);

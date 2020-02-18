@@ -9,7 +9,7 @@ public class ChatServer {
 
     public ChatServer() {
         currentClients = new ArrayList<>();
-        chatLog= new LinkedList<>();
+        chatLog = new LinkedList<>();
         try {
             ServerSocket servSocket = new ServerSocket(PORT);
             while (true) {
@@ -32,7 +32,6 @@ public class ChatServer {
         }
 
     }
-
 
     public static void main(String[] args) {
         new ChatServer();
@@ -69,6 +68,8 @@ class ClientHandler implements Runnable {
         this.socket = socket;
         this.ois = ois;
         this.oos = oos;
+
+        // Send all messsages stored in chatLog to the new client
         for (Message m: server.getChatLog()) {
             try {
                 oos.writeObject(m);
@@ -79,7 +80,7 @@ class ClientHandler implements Runnable {
         server.broadcastMessage(new Message(new User("server"),"A new client has connected"));
     }
 
-    public ObjectOutputStream getOutputStream() { return this.oos;};
+    public ObjectOutputStream getOutputStream() { return this.oos;}
 
     @Override
     public void run() {

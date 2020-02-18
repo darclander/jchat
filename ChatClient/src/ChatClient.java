@@ -10,20 +10,19 @@ import java.beans.PropertyChangeSupport;
 public class ChatClient {
 
     // TODO: Load settings from file on disk
-    private static String SERVER_ADDRESS = "178.62.204.237";
+    private static String SERVER_ADDRESS = "178.62.204.237"; // TODO: Store on disk
     private static int PORT = 64206;
     private final PropertyChangeSupport obs = new PropertyChangeSupport(this);
-    private GUI view;
     private User user;
-    private Controller controller;
     private Queue<Message> chatLog;
     private ObjectOutputStream socketOut;
     private ObjectInputStream socketIn;
 
     public ChatClient() {
         chatLog = new LinkedList<>(); // TODO: Save log to disk
-        view = new GUI(this);
-        controller = new Controller(this,view);
+        GUI view = new GUI();
+        Controller controller = new Controller(this,view);
+        this.addObserver(view);
     }
 
     public void setUser(String name) {

@@ -1,6 +1,3 @@
-import javax.swing.*;
-import java.awt.event.*;
-
 public class Controller {
 
     private ChatClient model;
@@ -13,7 +10,7 @@ public class Controller {
         // Add action listeners for view elements
         view.getSendButton().addActionListener(e -> send());
         view.getMessageBox().addActionListener(e -> send());
-        System.out.println(view.getLoginDialog().getLoginTextField());
+
         view.getLoginDialog().getLoginTextField().addActionListener(e -> login());
         view.getLoginDialog().getSendButton().addActionListener(e -> login());
 
