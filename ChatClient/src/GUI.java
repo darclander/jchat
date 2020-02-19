@@ -5,14 +5,20 @@ import java.awt.*;
 import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.Serializable;
 
+// Överväg att bygga egna Observer/Observable-gränssnitt/hjälpklasser
+// med lämplig typparametrisering.
 public class GUI implements PropertyChangeListener {
 
     private JFrame frame;
     private JTextArea chatContainer;
     private JLabel profileName;
+
+    // static final
     private int width = 960;
     private int height = 540;
+
     private JTextField messageBox;
     private Login loginDialog;
     private JButton sendButton;
@@ -24,7 +30,6 @@ public class GUI implements PropertyChangeListener {
         makeFrame();
         makeBody();
         renderWindow();
-
     }
 
     public JFrame getFrame() {return this.frame;}
@@ -35,10 +40,11 @@ public class GUI implements PropertyChangeListener {
         frame.getContentPane().setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.X_AXIS));
         frame.setLocationRelativeTo(null);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-
     }
 
     private void makeBody(){
+        // Bryt ut i separata metoder.
+
         //Left panel
         JPanel contentPanel = new JPanel();
         contentPanel.setPreferredSize(new Dimension(280,0));
@@ -58,7 +64,8 @@ public class GUI implements PropertyChangeListener {
         profileOverview.setMaximumSize(new Dimension(280,180));
         profileOverview.setBackground(new Color(32, 34, 37));
 
-        //Left-bottom panel (Tabbed pane)
+        // Vad fyller de olika panelerna för funktion? (EJ plats...)
+        // Left-bottom panel (Tabbed pane)
         JTabbedPane contactTabs = new JTabbedPane();
         contactTabs.addTab("Friend list", new JPanel());
         contactTabs.addTab("Groups", new JPanel());

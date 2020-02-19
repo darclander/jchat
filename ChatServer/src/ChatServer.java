@@ -10,6 +10,8 @@ public class ChatServer {
     public ChatServer() {
         currentClients = new ArrayList<>();
         chatLog = new LinkedList<>();
+        // Använd try with resources
+        // Bryt ut till separat start-metod
         try {
             ServerSocket servSocket = new ServerSocket(PORT);
             while (true) {
@@ -22,7 +24,7 @@ public class ChatServer {
                 // Assign a new thread for the session
                 ClientHandler client = new ClientHandler(this, clientSocket, ois, oos);
                 // Effectively keep track of this session to make "broadcasts" possible
-                currentClients.add(client);
+                currentClients.add(client)
                 Thread t = new Thread(client);
                 t.start();
                 System.out.println("Assigned new thread for client");
@@ -52,9 +54,12 @@ public class ChatServer {
         currentClients.remove(c);
     }
 
+    // Ersätt med defensiv kopia (defensive copying.)
+    // Kolla noga på hjälpklassen java.util.Collections
     public Queue<Message> getChatLog() { return this.chatLog;}
 }
 
+// Överväg statisk innerklass istället
 // A new ClientHandler object is created for every new session
 class ClientHandler implements Runnable {
 
@@ -69,7 +74,7 @@ class ClientHandler implements Runnable {
         this.ois = ois;
         this.oos = oos;
 
-        // Send all messsages stored in chatLog to the new client
+        // Send all messages stored in chatLog to the new client
         for (Message m: server.getChatLog()) {
             try {
                 oos.writeObject(m);

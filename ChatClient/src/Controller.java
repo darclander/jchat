@@ -1,5 +1,6 @@
-public class Controller {
+Bygg om till PAKET (ej moduler)
 
+public class Controller {
     private ChatClient model;
     private GUI view;
 
@@ -13,8 +14,6 @@ public class Controller {
 
         view.getLoginDialog().getLoginTextField().addActionListener(e -> login());
         view.getLoginDialog().getSendButton().addActionListener(e -> login());
-
-
     }
 
     private void send() {
@@ -26,6 +25,5 @@ public class Controller {
         model.setUser(view.getLoginDialog().getNameInput());
         view.getLoginDialog().setVisible(false);
         view.setVisible(true);
-
     }
 }
