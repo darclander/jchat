@@ -1,3 +1,5 @@
+package net.adrianh.jchat.shared;
+
 import java.io.Serializable;
 import java.util.Objects;
 

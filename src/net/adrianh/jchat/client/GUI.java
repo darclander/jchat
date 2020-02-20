@@ -1,3 +1,5 @@
+package net.adrianh.jchat.client;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.DefaultCaret;
@@ -73,7 +75,7 @@ public class GUI implements PropertyChangeListener {
         contactTabs.setBorder(null);
 
         //Profile Picture
-        Image profile = Toolkit.getDefaultToolkit().createImage("defaultProfile.png");
+        Image profile = Toolkit.getDefaultToolkit().createImage("resources/defaultProfile.png");
         Image newImage = profile.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
         JLabel profilePicture = new JLabel(new ImageIcon(newImage));
         profilePicture.setBorder(new EmptyBorder(20,0,20,0));

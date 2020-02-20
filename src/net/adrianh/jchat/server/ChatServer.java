@@ -1,6 +1,9 @@
+package net.adrianh.jchat.server;
+
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import net.adrianh.jchat.shared.*;
 
 public class ChatServer {
     private static int PORT = 64206;
@@ -24,7 +27,7 @@ public class ChatServer {
                 // Assign a new thread for the session
                 ClientHandler client = new ClientHandler(this, clientSocket, ois, oos);
                 // Effectively keep track of this session to make "broadcasts" possible
-                currentClients.add(client)
+                currentClients.add(client);
                 Thread t = new Thread(client);
                 t.start();
                 System.out.println("Assigned new thread for client");

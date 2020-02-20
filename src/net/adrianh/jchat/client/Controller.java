@@ -1,4 +1,4 @@
-Bygg om till PAKET (ej moduler)
+package net.adrianh.jchat.client;
 
 public class Controller {
     private ChatClient model;
