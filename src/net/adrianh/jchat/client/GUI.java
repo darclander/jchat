@@ -13,17 +13,19 @@ import java.io.Serializable;
 // med lämplig typparametrisering.
 public class GUI implements PropertyChangeListener {
 
+    // static final
+    private static final int width = 960;
+    private static final int height = 540;
+    private Login loginDialog;
+
     private JFrame frame;
     private JTextArea chatContainer;
-    private JLabel profileName;
-
-    // static final
-    private int width = 960;
-    private int height = 540;
-
     private JTextField messageBox;
-    private Login loginDialog;
     private JButton sendButton;
+    private JPanel messagePanel, header, chatPanel, profileOverview, sidebarPanel;
+    private JLabel recipientLabel, profilePicture, profileName;
+    private JScrollPane chatScrollFrame;
+    private JTabbedPane contactTabs;
 
     public GUI() {
         this.messageBox = new JTextField("Write a message");
@@ -44,40 +46,32 @@ public class GUI implements PropertyChangeListener {
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 
-    private void makeBody(){
-        // Bryt ut i separata metoder.
+    //Sidebar panel (Profile, friends etc)
+    private void makeSidebar() {
+        sidebarPanel = new JPanel();
+        sidebarPanel.setPreferredSize(new Dimension(280,0));
+        sidebarPanel.setMaximumSize(new Dimension(280,Integer.MAX_VALUE));
+        sidebarPanel.setLayout(new BoxLayout(sidebarPanel,BoxLayout.Y_AXIS));
+        sidebarPanel.setBackground(new Color(32, 34, 37));
+    }
 
-        //Left panel
-        JPanel contentPanel = new JPanel();
-        contentPanel.setPreferredSize(new Dimension(280,0));
-        contentPanel.setMaximumSize(new Dimension(280,Integer.MAX_VALUE));
-        contentPanel.setLayout(new BoxLayout(contentPanel,BoxLayout.Y_AXIS));
-        contentPanel.setBackground(new Color(32, 34, 37));
-
-        //Right Panel
-        JPanel chatPanel = new JPanel();
+    private void makeChatPanel() {
+        chatPanel = new JPanel();
         chatPanel.setLayout(new BorderLayout());
         chatPanel.setBackground(new Color(54, 57, 63));
+    }
 
-        //Left-top panel
-        JPanel profileOverview = new JPanel();
+    private void makeProfileView() {
+        profileOverview = new JPanel();
         profileOverview.setLayout(new BorderLayout());
         profileOverview.setPreferredSize(new Dimension(280,180));
         profileOverview.setMaximumSize(new Dimension(280,180));
         profileOverview.setBackground(new Color(32, 34, 37));
 
-        // Vad fyller de olika panelerna för funktion? (EJ plats...)
-        // Left-bottom panel (Tabbed pane)
-        JTabbedPane contactTabs = new JTabbedPane();
-        contactTabs.addTab("Friend list", new JPanel());
-        contactTabs.addTab("Groups", new JPanel());
-        contactTabs.addTab("Settings", new JPanel());
-        contactTabs.setBorder(null);
-
         //Profile Picture
         Image profile = Toolkit.getDefaultToolkit().createImage("resources/defaultProfile.png");
         Image newImage = profile.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
-        JLabel profilePicture = new JLabel(new ImageIcon(newImage));
+        profilePicture = new JLabel(new ImageIcon(newImage));
         profilePicture.setBorder(new EmptyBorder(20,0,20,0));
 
         //Profile name
@@ -86,37 +80,48 @@ public class GUI implements PropertyChangeListener {
         profileName.setBorder(new EmptyBorder(0,0,20,0));
         profileName.setHorizontalAlignment(JLabel.CENTER);
         profileName.setForeground(Color.WHITE);
+    }
 
-        //Header
-        JPanel header = new JPanel();
+    private void makeTabs() {
+        contactTabs = new JTabbedPane();
+        contactTabs.addTab("Friend list", new JPanel());
+        contactTabs.addTab("Groups", new JPanel());
+        contactTabs.addTab("Settings", new JPanel());
+        contactTabs.setBorder(null);
+    }
+
+    private void makeHeader() {
+        header = new JPanel();
         header.setLayout(new BorderLayout());
         header.setBackground(new Color(32, 34, 37));
         header.setPreferredSize(new Dimension(0,35));
         header.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, new Color(22, 24, 26)));
 
         //Recipient
-        JLabel recipientLabel = new JLabel("@Group");
+        recipientLabel = new JLabel("@Group");
         recipientLabel.setForeground(Color.WHITE);
         recipientLabel.setVerticalAlignment(JLabel.CENTER);
         recipientLabel.setBorder(new EmptyBorder(0,10,0,0));
+    }
 
-        //Chat container
+    private void makeChatContainer() {
         chatContainer = new JTextArea();
         chatContainer.setLayout(new BoxLayout(chatContainer, BoxLayout.Y_AXIS));
         chatContainer.setForeground(Color.WHITE);
         chatContainer.setAutoscrolls(true);
         chatContainer.setBackground(new Color(39, 42, 46));
         chatContainer.setEditable(false);
-        JScrollPane chatScrollFrame = new JScrollPane(chatContainer);
+        chatScrollFrame = new JScrollPane(chatContainer);
         chatScrollFrame.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         chatScrollFrame.setBorder(null);
         chatScrollFrame.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(5,5,15,5, new Color(54, 57, 63)), BorderFactory.createMatteBorder(10,10,10,10, new Color(39,42,46))));
         DefaultCaret caret = (DefaultCaret)chatContainer.getCaret();
         //possible to change in settings to NEVER_UPDATE?
         caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+    }
 
-        //Message Panel
-        JPanel messagePanel = new JPanel();
+    private void makeMessageBox() {
+        messagePanel = new JPanel();
         messagePanel.setPreferredSize(new Dimension(0,65));
         messagePanel.setBackground(new Color(54, 57, 63));
 
@@ -131,7 +136,6 @@ public class GUI implements PropertyChangeListener {
         //  Send button
         sendButton = new JButton("Send");
         sendButton.setForeground(Color.DARK_GRAY);
-
 
         messageBox.addFocusListener(new FocusListener() {
             public void focusGained(FocusEvent e) {
@@ -150,7 +154,9 @@ public class GUI implements PropertyChangeListener {
                 }
             }
         });
+    }
 
+    private void assembleBody() {
         //Adding content to mainframe
         messagePanel.add(messageBox);
         messagePanel.add(sendButton);
@@ -160,10 +166,22 @@ public class GUI implements PropertyChangeListener {
         chatPanel.add(messagePanel, BorderLayout.SOUTH);
         profileOverview.add(profilePicture, BorderLayout.NORTH);
         profileOverview.add(profileName, BorderLayout.CENTER);
-        contentPanel.add(profileOverview);
-        contentPanel.add(contactTabs);
-        frame.getContentPane().add(contentPanel);
+        sidebarPanel.add(profileOverview);
+        sidebarPanel.add(contactTabs);
+        frame.getContentPane().add(sidebarPanel);
         frame.getContentPane().add(chatPanel);
+    }
+
+    private void makeBody() {
+        makeSidebar();
+        makeChatPanel();
+        makeProfileView();
+        makeTabs();
+        makeHeader();
+        makeChatContainer();
+        makeMessageBox();
+        assembleBody();
+
     }
 
 
