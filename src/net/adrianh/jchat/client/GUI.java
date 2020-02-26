@@ -14,8 +14,8 @@ import java.io.Serializable;
 public class GUI implements PropertyChangeListener {
 
     // static final
-    private static final int width = 960;
-    private static final int height = 540;
+    private static final int width = 960; //should these be static final if we want to change width / height?
+    private static final int height = 540; //should these be static final if we want to change width / height?
     private Login loginDialog;
 
     private JFrame frame;
@@ -27,6 +27,7 @@ public class GUI implements PropertyChangeListener {
     private JScrollPane chatScrollFrame;
     private JTabbedPane contactTabs;
 
+    //constructor of GUI lets user login with an username and creates the UI-window.  
     public GUI() {
         this.messageBox = new JTextField("Write a message");
         loginDialog = new Login(this);
@@ -36,8 +37,10 @@ public class GUI implements PropertyChangeListener {
         renderWindow();
     }
 
+    // returns this class's frame (maybe overkill comment?)
     public JFrame getFrame() {return this.frame;}
 
+    // Creates a frame for the GUI with the name "jChat", uses static final variables width and height.
     private void makeFrame() {
         frame = new JFrame("jChat");
         frame.setMinimumSize(new Dimension(width,height));
@@ -61,6 +64,7 @@ public class GUI implements PropertyChangeListener {
         chatPanel.setBackground(new Color(54, 57, 63));
     }
 
+    // makes the profile view in the UI which includes profile name, profile picture...
     private void makeProfileView() {
         profileOverview = new JPanel();
         profileOverview.setLayout(new BorderLayout());
@@ -82,6 +86,8 @@ public class GUI implements PropertyChangeListener {
         profileName.setForeground(Color.WHITE);
     }
 
+    // creates the tabs (currently below profile view) such as friend list, groups, settings. 
+    // (this entire method might be removed / replaced due to different implementation?)
     private void makeTabs() {
         contactTabs = new JTabbedPane();
         contactTabs.addTab("Friend list", new JPanel());
@@ -89,6 +95,7 @@ public class GUI implements PropertyChangeListener {
         contactTabs.addTab("Settings", new JPanel());
         contactTabs.setBorder(null);
     }
+
 
     private void makeHeader() {
         header = new JPanel();
@@ -104,6 +111,7 @@ public class GUI implements PropertyChangeListener {
         recipientLabel.setBorder(new EmptyBorder(0,10,0,0));
     }
 
+    // chat container which "holds" all chat messages (implement a load of old messages?)
     private void makeChatContainer() {
         chatContainer = new JTextArea();
         chatContainer.setLayout(new BoxLayout(chatContainer, BoxLayout.Y_AXIS));
@@ -120,6 +128,7 @@ public class GUI implements PropertyChangeListener {
         caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
     }
 
+    // creates the message box which allows the user to enter and send messages
     private void makeMessageBox() {
         messagePanel = new JPanel();
         messagePanel.setPreferredSize(new Dimension(0,65));
@@ -172,6 +181,7 @@ public class GUI implements PropertyChangeListener {
         frame.getContentPane().add(chatPanel);
     }
 
+    // collection method for creating the entire body of the GUI, different methods instead of a large method to generalize.
     private void makeBody() {
         makeSidebar();
         makeChatPanel();
@@ -181,13 +191,14 @@ public class GUI implements PropertyChangeListener {
         makeChatContainer();
         makeMessageBox();
         assembleBody();
-
     }
 
-
+    // renders the window
     private void renderWindow(){
         frame.pack();
     }
+
+    // get methods
 
     public JButton getSendButton() {
         return this.sendButton;
@@ -254,3 +265,4 @@ class Login {
     public JButton getSendButton() {return this.buttonLogin;}
 
 }
+
