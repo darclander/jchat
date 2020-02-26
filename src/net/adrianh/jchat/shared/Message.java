@@ -9,11 +9,13 @@ public final class Message implements Serializable {
     private String msg;
     private User sender;
     private String id;
+    private Chat chat;
 
-    public Message(User sender, String msg) {
+    public Message(User sender, String msg, Chat chat) {
         this.sender = sender;
         this.msg = msg;
         this.id = UUID.randomUUID().toString().substring(0,8);
+        this.chat = chat;
     }
 
     public String getID() { return this.id; };
@@ -24,6 +26,10 @@ public final class Message implements Serializable {
 
     public User getSender() {
         return this.sender;
+    }
+
+    public Chat getChat() {
+        return this.chat; // TODO: Defensive copying?
     }
 
 

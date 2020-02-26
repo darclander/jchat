@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.beans.PropertyChangeSupport;
@@ -17,6 +18,7 @@ public class ChatClient {
     private static int PORT = 64206;
     private final PropertyChangeSupport obs = new PropertyChangeSupport(this);
     private User user;
+    private Chat currentChat;
     private Queue<Message> chatLog;
     private ObjectOutputStream socketOut;
     private ObjectInputStream socketIn;
@@ -26,6 +28,9 @@ public class ChatClient {
         GUI view = new GUI();
         Controller controller = new Controller(this,view);
         this.addObserver(view);
+         ArrayList<User> members = new ArrayList<>();
+         members.add(user);
+        currentChat = new Chat("Kek",members);
     }
 
     public void setUser(String name) {
@@ -36,7 +41,7 @@ public class ChatClient {
 
     public void sendText(User sender, String text) {
         try {
-            Message newMsg = new Message(sender,text);
+            Message newMsg = new Message(sender,text, this.currentChat);
             socketOut.writeObject(newMsg);
 
         } catch(IOException e) {
@@ -53,7 +58,8 @@ public class ChatClient {
             Socket socket = new Socket(SERVER_ADDRESS,PORT);
             socketOut = new ObjectOutputStream(socket.getOutputStream());
             socketIn = new ObjectInputStream(socket.getInputStream());
-            //socketOut.write
+            // Send username to server
+            socketOut.writeObject(user);
             while (true) {
                 try {
                     Message incomingMsg = (Message)socketIn.readObject();
