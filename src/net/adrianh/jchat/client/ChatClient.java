@@ -14,8 +14,8 @@ import net.adrianh.jchat.shared.*;
 public class ChatClient {
 
     // TODO: Load settings from file on disk
-    private static String SERVER_ADDRESS = "localhost"; // TODO: Store on disk
-    private static int PORT = 64206;
+    private static final String SERVER_ADDRESS = "localhost"; // TODO: Store on disk
+    private static final int PORT = 64206;
     private final PropertyChangeSupport obs = new PropertyChangeSupport(this);
     private User user;
     private Chat currentChat;

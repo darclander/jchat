@@ -227,6 +227,7 @@ public class GUI implements PropertyChangeListener {
     }
 }
 
+// TODO: Make static
 class Login {
 
     private JDialog dialog;
