@@ -225,45 +225,44 @@ public class GUI implements PropertyChangeListener {
             profileName.setText(e.getNewValue().toString());
         }
     }
-}
 
-// TODO: Make static
-class Login {
+    static class Login {
 
-    private JDialog dialog;
-    private JTextField txtfldUsername = new JTextField(24);
-    private JButton buttonLogin = new JButton("Login");
+        private JDialog dialog;
+        private JTextField txtfldUsername = new JTextField(24);
+        private JButton buttonLogin = new JButton("Login");
 
-    public Login(GUI parent) {
-        dialog = new JDialog(parent.getFrame());
+        public Login(GUI parent) {
+            dialog = new JDialog(parent.getFrame());
 
-        JPanel panel1 = new JPanel(new GridLayout(3,1));
-        JLabel lblUsername = new JLabel("Username");
-        panel1.add(lblUsername);
-        panel1.add(txtfldUsername);
-        panel1.add(buttonLogin);
-        dialog.setLayout(new BorderLayout());
-        dialog.add(panel1, BorderLayout.CENTER);
+            JPanel panel1 = new JPanel(new GridLayout(3,1));
+            JLabel lblUsername = new JLabel("Username");
+            panel1.add(lblUsername);
+            panel1.add(txtfldUsername);
+            panel1.add(buttonLogin);
+            dialog.setLayout(new BorderLayout());
+            dialog.add(panel1, BorderLayout.CENTER);
 
-        dialog.pack();
-        dialog.setLocationRelativeTo(null);
+            dialog.pack();
+            dialog.setLocationRelativeTo(null);
 
-        dialog.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                System.exit(0);
-            }
-        });
+            dialog.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosing(WindowEvent e) {
+                    System.exit(0);
+                }
+            });
+        }
+
+        public void setVisible(boolean visible) {
+            this.dialog.setVisible(visible);
+        }
+
+        public JDialog getDialog() {return this.dialog;}
+        public JTextField getLoginTextField() {return this.txtfldUsername;}
+        public String getNameInput() {return this.txtfldUsername.getText();}
+        public JButton getSendButton() {return this.buttonLogin;}
+
     }
-
-    public void setVisible(boolean visible) {
-        this.dialog.setVisible(visible);
-    }
-
-    public JDialog getDialog() {return this.dialog;}
-    public JTextField getLoginTextField() {return this.txtfldUsername;}
-    public String getNameInput() {return this.txtfldUsername.getText();}
-    public JButton getSendButton() {return this.buttonLogin;}
-
 }
 
