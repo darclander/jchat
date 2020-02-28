@@ -8,7 +8,7 @@ import net.adrianh.jchat.shared.*;
 public class ChatServer {
     private static int PORT = 64206;
     private HashMap<User,ClientHandler> currentClients;
-    private Queue<Message> chatLog;
+    private List<Message> chatLog;
 
     public ChatServer() {
         currentClients = new HashMap<>();
@@ -17,9 +17,7 @@ public class ChatServer {
     }
 
     private void start() {
-        // Använd try with resources
-        try {
-            ServerSocket servSocket = new ServerSocket(PORT);
+        try (ServerSocket servSocket = new ServerSocket(PORT)) {
             while (true) {
                 // Wait for connection
                 Socket clientSocket = servSocket.accept();
@@ -67,7 +65,7 @@ public class ChatServer {
 
     // Ersätt med defensiv kopia (defensive copying.)
     // Kolla noga på hjälpklassen java.util.Collections
-    public Queue<Message> getChatLog() { return this.chatLog;}
+    public List<Message> getChatLog() { return this.chatLog;}
 
     // A new ClientHandler object is created for every new session
     static class ClientHandler implements Runnable {

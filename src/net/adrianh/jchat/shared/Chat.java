@@ -1,13 +1,13 @@
 package net.adrianh.jchat.shared;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
-import java.util.Queue;
 
 public class Chat implements Serializable {
     private String name;
     private List<User> members;
-    private Queue<Message> log;
+    private List<Message> log;
 
     public Chat(String name, List<User> members) {
         this.name = name;
@@ -16,7 +16,7 @@ public class Chat implements Serializable {
 
     public String getName() { return this.name;}
     public List<User> getMembers() { return this.members;}
-    public Queue<Message> getLog() { return this.log;} // TODO: Defensive copying
+    public List<Message> getLog() { return Collections.unmodifiableList(this.log);} // TODO: Defensive copying
 
     public void addMember(User user) {
         this.members.add(user);

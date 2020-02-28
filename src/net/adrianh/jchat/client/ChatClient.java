@@ -28,8 +28,9 @@ public class ChatClient {
         GUI view = new GUI();
         Controller controller = new Controller(this,view);
         this.addObserver(view);
-         ArrayList<User> members = new ArrayList<>();
-         members.add(user);
+
+        ArrayList<User> members = new ArrayList<>();
+        members.add(user);
         currentChat = new Chat("Kek",members);
     }
 
@@ -54,8 +55,7 @@ public class ChatClient {
     }
 
     private void connectAndListen() {
-        try {
-            Socket socket = new Socket(SERVER_ADDRESS,PORT);
+        try( Socket socket = new Socket(SERVER_ADDRESS,PORT) ) {
             socketOut = new ObjectOutputStream(socket.getOutputStream());
             socketIn = new ObjectInputStream(socket.getInputStream());
             // Send username to server
