@@ -6,13 +6,15 @@ import java.util.*;
 import net.adrianh.jchat.shared.*;
 
 public class ChatServer {
-    private static int PORT = 64206;
-    private HashMap<User,ClientHandler> currentClients;
-    private List<Message> chatLog;
-
+    private static final int PORT = 64206;
+    private HashMap<ClientHandler,User> currentClients;
+    private Set<Chat> chatSet;
+    private Chat defaultChat;
     public ChatServer() {
         currentClients = new HashMap<>();
-        chatLog = new LinkedList<>();
+        chatSet = new HashSet<>();
+        defaultChat = new Chat("default",new HashSet<>());
+        chatSet.add(defaultChat);
 
     }
 
@@ -36,7 +38,7 @@ public class ChatServer {
         }
     }
 
-    public HashMap<User,ClientHandler> getCurrentClients() {
+    public HashMap<ClientHandler,User> getCurrentClients() {
         return this.currentClients;
     }
 
@@ -47,11 +49,23 @@ public class ChatServer {
 
     // Send the message to every client in currentClients
     public void broadcastMessage(Message msg) {
-        for(Map.Entry<User,ClientHandler> entry: currentClients.entrySet()) {
+        Chat chat = this.defaultChat;
+        // Find the chat (if it's not the default)
+        if (!msg.getChat().equals("default")) {
+            for (Chat c: this.chatSet) {
+                if (c.getName().equals(msg.getChat())) {
+                    chat = c;
+                    break;
+                }
+            }
+        }
+        // Find all active clients that are members of the specific chat
+        for(Map.Entry<ClientHandler,User> entry: currentClients.entrySet()) {
             try {
                 // Check if the current client is a member of the chat
-                if (msg.getChat().getMembers().contains(entry.getKey())) {
-                    entry.getValue().getOutputStream().writeObject(msg);
+                if (chat.getMembers().contains(entry.getValue())) {
+                    // Send the message
+                    entry.getKey().getOutputStream().writeObject(msg);
                 }
             } catch(IOException e) {
                 e.printStackTrace();
@@ -63,9 +77,11 @@ public class ChatServer {
         currentClients.remove(c);
     }
 
-    // Ersätt med defensiv kopia (defensive copying.)
-    // Kolla noga på hjälpklassen java.util.Collections
-    public List<Message> getChatLog() { return this.chatLog;}
+    public Set<Chat> getChatSet() { return this.chatSet;}
+
+    public Chat getDefaultChat() { return this.defaultChat;}
+
+
 
     // A new ClientHandler object is created for every new session
     static class ClientHandler implements Runnable {
@@ -84,20 +100,42 @@ public class ChatServer {
 
         public void initialConnection() {
 
-            // Send all messages stored in chatLog to the new client
-            for (Message m: server.getChatLog()) {
-                try {
-                    oos.writeObject(m);
-                } catch(IOException e) {
-                    e.printStackTrace();
-                }
-            }
             // Wait for client to identify itself and add the client to currentClients
             try {
                 User connectingUser = (User)ois.readObject();
-                server.getCurrentClients().put(connectingUser,this);
+                server.getCurrentClients().put(this,connectingUser);
+                System.out.println(connectingUser);
+                // Connect user to default chat
+                server.getDefaultChat().addMember(connectingUser);
+                oos.writeObject(server.getDefaultChat());
 
             } catch(ClassNotFoundException | IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // Handles join requests
+        private void joinChat(JoinRequest request) {
+            for (Chat c: server.getChatSet()) {
+                if (request.getChatRequest().equals(c.getName())) {
+                    c.addMember(request.getUser());
+                    System.out.println(request.getUser().getName() + " joined "+ request.getChatRequest());
+                    try {
+                        oos.writeObject(c); // Send response to client with the full chat object
+                    } catch(IOException e) {
+                        e.printStackTrace();
+                    }
+                    return;
+                }
+            }
+            // Create chat if it does not exist
+            Set<User> members = new HashSet<>();
+            members.add(request.getUser());
+            Chat newChat = new Chat(request.getChatRequest(),members);
+            server.getChatSet().add(newChat);
+            try {
+                oos.writeObject(newChat);
+            } catch(IOException e) {
                 e.printStackTrace();
             }
         }
@@ -109,10 +147,26 @@ public class ChatServer {
             initialConnection();
             try {
                 while (!socket.isClosed()) {
-                    Message incomingMsg = (Message)ois.readObject();
-                    server.getChatLog().add(incomingMsg);
-                    System.out.println(incomingMsg);
-                    server.broadcastMessage(incomingMsg);
+                    // Received object can either be a message or a join request
+                    Object o = ois.readObject();
+
+                    if (o instanceof Message) {
+                        Message incomingMsg = (Message) o;
+                        // Find the chat object referenced by getChat() string (maybe turn into separate method?)
+                        for(Chat c: server.getChatSet()) {
+                            if (incomingMsg.getChat().equals(c.getName())) {
+                                c.getLog().add(incomingMsg);
+                            }
+                        }
+                        System.out.println(incomingMsg);
+                        server.broadcastMessage(incomingMsg);
+                    }
+
+                    if (o instanceof JoinRequest) {
+                        JoinRequest request = (JoinRequest) o;
+                        joinChat(request);
+                    }
+
                 }
 
             } catch(IOException e) { // Triggers when user closes the window

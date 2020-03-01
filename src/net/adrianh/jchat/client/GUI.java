@@ -1,5 +1,8 @@
 package net.adrianh.jchat.client;
 
+import net.adrianh.jchat.shared.Chat;
+import net.adrianh.jchat.shared.Message;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.DefaultCaret;
@@ -7,7 +10,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.Serializable;
 
 // Överväg att bygga egna Observer/Observable-gränssnitt/hjälpklasser
 // med lämplig typparametrisering.
@@ -20,8 +22,8 @@ public class GUI implements PropertyChangeListener {
 
     private JFrame frame;
     private JTextArea chatContainer;
-    private JTextField messageBox;
-    private JButton sendButton;
+    private JTextField messageBox, groupSearchField;
+    private JButton sendButton, groupJoinButton;
     private JPanel messagePanel, header, chatPanel, profileOverview, sidebarPanel;
     private JLabel recipientLabel, profilePicture, profileName;
     private JScrollPane chatScrollFrame;
@@ -90,8 +92,20 @@ public class GUI implements PropertyChangeListener {
     // (this entire method might be removed / replaced due to different implementation?)
     private void makeTabs() {
         contactTabs = new JTabbedPane();
-        contactTabs.addTab("Friend list", new JPanel());
-        contactTabs.addTab("Groups", new JPanel());
+        //contactTabs.addTab("Friend list", new JPanel());
+        JPanel groupList = new JPanel();
+        //groupList.setLayout(new BoxLayout(groupList,BoxLayout.Y_AXIS));
+        groupSearchField = new JTextField(12);
+        groupSearchField.setBackground(new Color(64, 68, 75));
+        groupSearchField.setBorder(null);
+        groupSearchField.setCaretColor(Color.WHITE);
+        groupSearchField.setForeground(Color.WHITE);
+
+        groupJoinButton = new JButton("Join");
+        groupList.add(groupSearchField);
+        groupList.add(groupJoinButton);
+        groupList.setBackground(new Color(39, 42, 46));
+        contactTabs.addTab("Groups", groupList);
         contactTabs.addTab("Settings", new JPanel());
         contactTabs.setBorder(null);
     }
@@ -208,6 +222,14 @@ public class GUI implements PropertyChangeListener {
         return  this.messageBox;
     }
 
+    public JTextField getGroupSearchField() {
+        return this.groupSearchField;
+    }
+
+    public JButton getGroupJoinButton() {
+        return this.groupJoinButton;
+    }
+
     public Login getLoginDialog() {
         return this.loginDialog;
     }
@@ -223,6 +245,14 @@ public class GUI implements PropertyChangeListener {
         }
         if ("usernameChosen".equals(e.getPropertyName())) {
             profileName.setText(e.getNewValue().toString());
+        }
+        if ("chatChange".equals(e.getPropertyName())) {
+            Chat chat = (Chat) e.getNewValue();
+            recipientLabel.setText(chat.toString());
+            chatContainer.setText("");
+            for (Message msg: chat.getLog()) {
+                chatContainer.append(msg.toString());
+            }
         }
     }
 
