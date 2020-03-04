@@ -20,12 +20,16 @@ public class ChatClient {
     private Set<Chat> chatsJoined;
     private ObjectOutputStream socketOut;
     private ObjectInputStream socketIn;
+    private Sound msgSound;
 
     public ChatClient() {
         GUI view = new GUI();
         Controller controller = new Controller(this,view);
         this.addObserver(view);
         chatsJoined = new HashSet<>();
+        msgSound = new Sound("message");
+
+
     }
 
     public void setUser(String name) {
@@ -68,6 +72,7 @@ public class ChatClient {
 
     }
 
+
     public void addObserver(final PropertyChangeListener obs) {
         this.obs.addPropertyChangeListener(obs);
     }
@@ -104,6 +109,9 @@ public class ChatClient {
                                     c.getLog().add(incomingMsg);
                                     if (c.equals(currentChat)) {
                                         notifyObservers("newMsg",incomingMsg);
+                                        if (!incomingMsg.getSender().equals(user)) {
+                                            msgSound.play();
+                                        }
                                     }
                                 }
                             }

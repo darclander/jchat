@@ -24,7 +24,7 @@ public class GUI implements PropertyChangeListener {
     private JTextArea chatContainer;
     private JTextField messageBox, groupSearchField;
     private JButton sendButton, groupJoinButton;
-    private JPanel messagePanel, header, chatPanel, profileOverview, sidebarPanel;
+    private JPanel messagePanel, header, chatPanel, profileOverview, sidebarPanel, groupList;
     private JLabel recipientLabel, profilePicture, profileName;
     private JScrollPane chatScrollFrame;
     private JTabbedPane contactTabs;
@@ -75,7 +75,7 @@ public class GUI implements PropertyChangeListener {
         profileOverview.setBackground(new Color(32, 34, 37));
 
         //Profile Picture
-        Image profile = Toolkit.getDefaultToolkit().createImage("resources/defaultProfile.png");
+        Image profile = Toolkit.getDefaultToolkit().createImage(this.getClass().getResource("/defaultProfile.png"));
         Image newImage = profile.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
         profilePicture = new JLabel(new ImageIcon(newImage));
         profilePicture.setBorder(new EmptyBorder(20,0,20,0));
@@ -92,20 +92,30 @@ public class GUI implements PropertyChangeListener {
     // (this entire method might be removed / replaced due to different implementation?)
     private void makeTabs() {
         contactTabs = new JTabbedPane();
-        //contactTabs.addTab("Friend list", new JPanel());
-        JPanel groupList = new JPanel();
-        //groupList.setLayout(new BoxLayout(groupList,BoxLayout.Y_AXIS));
+        JPanel groupTab = new JPanel();
+        JPanel groupSearchPanel = new JPanel();
+        groupList = new JPanel();
+        groupTab.setLayout(new BorderLayout());
+        groupList.setLayout(new BoxLayout(groupList,BoxLayout.Y_AXIS));
         groupSearchField = new JTextField(12);
         groupSearchField.setBackground(new Color(64, 68, 75));
         groupSearchField.setBorder(null);
         groupSearchField.setCaretColor(Color.WHITE);
         groupSearchField.setForeground(Color.WHITE);
 
-        groupJoinButton = new JButton("Join");
-        groupList.add(groupSearchField);
-        groupList.add(groupJoinButton);
+
         groupList.setBackground(new Color(39, 42, 46));
-        contactTabs.addTab("Groups", groupList);
+        groupList.setForeground(Color.WHITE);
+        groupSearchPanel.setBackground(new Color(54, 57, 63));
+
+        groupJoinButton = new JButton("Join");
+        groupSearchPanel.add(groupSearchField);
+        groupSearchPanel.add(groupJoinButton);
+        groupTab.add(groupSearchPanel,BorderLayout.NORTH);
+        groupTab.add(groupList,BorderLayout.CENTER);
+
+
+        contactTabs.addTab("Groups", groupTab);
         contactTabs.addTab("Settings", new JPanel());
         contactTabs.setBorder(null);
     }
@@ -250,6 +260,10 @@ public class GUI implements PropertyChangeListener {
             Chat chat = (Chat) e.getNewValue();
             recipientLabel.setText(chat.toString());
             chatContainer.setText("");
+            JLabel newChatLabel = new JLabel(chat.toString());
+            newChatLabel.setForeground(Color.WHITE);
+            groupList.add(newChatLabel);
+            groupList.revalidate();
             for (Message msg: chat.getLog()) {
                 chatContainer.append(msg.toString());
             }

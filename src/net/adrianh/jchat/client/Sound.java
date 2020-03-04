@@ -9,22 +9,36 @@ import javax.sound.sampled.*;
 // implement given name, now every sound is default test.wav. Startup sound and message sound?
 // what happens if user closes application? does the sound stop?
 public class Sound {
-    public Sound() {
-        try {
-            // Open an audio input stream.
-            URL url = this.getClass().getClassLoader().getResource("test.wav");
-            AudioInputStream audioInput = AudioSystem.getAudioInputStream(url);
-            // Get a sound clip resource.
-            Clip clip = AudioSystem.getClip();
-            // Open audio clip and load samples from the audio input stream.
-            clip.open(audioInput);
-            clip.start();
-         } catch (UnsupportedAudioFileException e) {
-            e.printStackTrace();
-         } catch (IOException e) {
-            e.printStackTrace();
-         } catch (LineUnavailableException e) {
-            e.printStackTrace();
-         }
+    private URL url;
+    private Clip clip;
+    public Sound(String requestedSound) {
+        if (requestedSound.equals("message")) {
+            url = this.getClass().getResource("/newMessage.wav");
+        }
+        if (url != null) {
+            try {
+                // Open an audio input stream.
+                // Get a sound clip resource.
+                // Open audio clip and load samples from the audio input stream.
+                AudioInputStream audioInput = AudioSystem.getAudioInputStream(url);
+                clip = AudioSystem.getClip();
+                clip.open(audioInput);
+
+
+            } catch (UnsupportedAudioFileException | LineUnavailableException | IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+    public void play() {
+        clip.setFramePosition(0);
+        clip.start();
+    }
+
+
+    public void stop () {
+        clip.stop();
     }
 }
