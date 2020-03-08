@@ -1,11 +1,11 @@
 package net.adrianh.jchat.server;
-
 import java.io.*;
 import java.net.*;
 import java.util.*;
 import net.adrianh.jchat.shared.*;
 
 public class ChatServer {
+    private static final String FILE_PATH = System.getProperty("user.home")+"/jChat-server";
     private static final int PORT = 64206;
     private HashMap<ClientHandler,User> currentClients;
     private Set<Chat> chatSet;
@@ -15,7 +15,7 @@ public class ChatServer {
         chatSet = new HashSet<>();
         defaultChat = new Chat("default",new HashSet<>());
         chatSet.add(defaultChat);
-
+        readSavedLog(defaultChat);
     }
 
     private void start() {
@@ -51,7 +51,7 @@ public class ChatServer {
     public void broadcastMessage(Message msg) {
         Chat chat = this.defaultChat;
         // Find the chat (if it's not the default)
-        if (!msg.getChat().equals("default")) {
+        if (!msg.getChat().equals(this.defaultChat.getName())) {
             for (Chat c: this.chatSet) {
                 if (c.getName().equals(msg.getChat())) {
                     chat = c;
@@ -81,6 +81,25 @@ public class ChatServer {
 
     public Chat getDefaultChat() { return this.defaultChat;}
 
+    public void readSavedLog(Chat c) {
+        try {
+            File file = new File(FILE_PATH+"/logs/"+c.getName()+".txt");
+            if (file.exists()) {
+                Scanner sc = new Scanner(file);
+                while (sc.hasNextLine()) {
+                    String str = sc.nextLine();
+                    String name = str.split(">")[0].substring(1);
+                    String message = str.split(">")[1].substring(1);
+                    User tempUser = new User(name);
+                    c.addMessage(new Message(tempUser, message, c.getName()));
+                }
+            }
+
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
 
     // A new ClientHandler object is created for every new session
@@ -104,10 +123,6 @@ public class ChatServer {
             try {
                 User connectingUser = (User)ois.readObject();
                 server.getCurrentClients().put(this,connectingUser);
-                System.out.println(connectingUser);
-                // Connect user to default chat
-                server.getDefaultChat().addMember(connectingUser);
-                oos.writeObject(server.getDefaultChat());
 
             } catch(ClassNotFoundException | IOException e) {
                 e.printStackTrace();
@@ -133,12 +148,15 @@ public class ChatServer {
             members.add(request.getUser());
             Chat newChat = new Chat(request.getChatRequest(),members);
             server.getChatSet().add(newChat);
+            server.readSavedLog(newChat);
             try {
                 oos.writeObject(newChat);
             } catch(IOException e) {
                 e.printStackTrace();
             }
+
         }
+
 
         public ObjectOutputStream getOutputStream() { return this.oos;}
 
@@ -155,7 +173,19 @@ public class ChatServer {
                         // Find the chat object referenced by getChat() string (maybe turn into separate method?)
                         for(Chat c: server.getChatSet()) {
                             if (incomingMsg.getChat().equals(c.getName())) {
-                                c.getLog().add(incomingMsg);
+                                c.addMessage(incomingMsg);
+                                File chatFile = new File(FILE_PATH+"/logs/"+c.getName()+".txt");
+                                if (!chatFile.exists()) {
+                                    chatFile.getParentFile().mkdirs();
+                                    chatFile.createNewFile();
+                                }
+                                try (FileWriter fw = new FileWriter(chatFile,true);
+                                    BufferedWriter bw = new BufferedWriter(fw);
+                                    PrintWriter out = new PrintWriter(bw))
+                                {
+                                    out.print(incomingMsg);
+                                }
+
                             }
                         }
                         System.out.println(incomingMsg);

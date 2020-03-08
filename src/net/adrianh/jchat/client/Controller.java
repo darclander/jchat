@@ -1,5 +1,11 @@
 package net.adrianh.jchat.client;
 
+import net.adrianh.jchat.shared.Chat;
+
+import javax.swing.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
 public class Controller {
     private ChatClient model;
     private GUI view;
@@ -21,7 +27,7 @@ public class Controller {
     }
 
     private void send() {
-        model.sendText(model.getUser(),view.getMessageBox().getText());
+        model.sendText(view.getMessageBox().getText());
         view.getMessageBox().setText("");
     }
 
@@ -32,8 +38,33 @@ public class Controller {
         model.connectAndListen();
     }
 
-    private void joinChat() {
+    public void joinChat() {
         String chat = view.getGroupSearchField().getText();
+        // Prevent duplicate joins
+        for (Chat c: model.getChatsJoined()) {
+            if (c.getName().equals(chat)) {
+                model.setCurrentChat(c);
+                return;
+            }
+        }
+        // Default to default chat
+        if (chat.isEmpty()) {
+            chat = "default";
+        }
         model.sendJoinRequest(chat);
+
+        JLabel label = new JLabel(chat);
+        label.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e) {
+                JLabel l = (JLabel) e.getSource();
+                for (Chat c: model.getChatsJoined()) {
+                    if (c.getName().equals(l.getText())) {
+                        model.setCurrentChat(c);
+                    }
+                }
+            }
+        });
+        view.addGroupLabel(label);
+
     }
 }

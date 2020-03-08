@@ -10,6 +10,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.HashSet;
+import java.util.Set;
 
 // Överväg att bygga egna Observer/Observable-gränssnitt/hjälpklasser
 // med lämplig typparametrisering.
@@ -29,11 +31,15 @@ public class GUI implements PropertyChangeListener {
     private JScrollPane chatScrollFrame;
     private JTabbedPane contactTabs;
 
+    private Set<JLabel> chatsJoined;
+
     //constructor of GUI lets user login with an username and creates the UI-window.  
     public GUI() {
         this.messageBox = new JTextField("Write a message");
         loginDialog = new Login(this);
         loginDialog.getDialog().setVisible(true);
+
+        chatsJoined = new HashSet<>();
         makeFrame();
         makeBody();
         renderWindow();
@@ -129,7 +135,7 @@ public class GUI implements PropertyChangeListener {
         header.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, new Color(22, 24, 26)));
 
         //Recipient
-        recipientLabel = new JLabel("@Group");
+        recipientLabel = new JLabel("");
         recipientLabel.setForeground(Color.WHITE);
         recipientLabel.setVerticalAlignment(JLabel.CENTER);
         recipientLabel.setBorder(new EmptyBorder(0,10,0,0));
@@ -248,6 +254,28 @@ public class GUI implements PropertyChangeListener {
         frame.setVisible(visible);
     }
 
+    private void viewChat(Chat c) {
+        recipientLabel.setText(c.toString());
+        chatContainer.setText("");
+        for (JLabel l: chatsJoined) {
+            if (l.getText().equals(c.getName())) {
+                l.setForeground(Color.GRAY);
+            } else {
+                l.setForeground(Color.WHITE);
+            }
+        }
+
+        for (Message msg: c.getLog()) {
+            chatContainer.append(msg.toString());
+        }
+    }
+    public void addGroupLabel(JLabel label) {
+        label.setForeground(Color.WHITE);
+        chatsJoined.add(label);
+        groupList.add(label);
+        groupList.revalidate();
+    }
+
     @Override
     public void propertyChange(PropertyChangeEvent e) {
         if ("newMsg".equals(e.getPropertyName())) {
@@ -258,15 +286,20 @@ public class GUI implements PropertyChangeListener {
         }
         if ("chatChange".equals(e.getPropertyName())) {
             Chat chat = (Chat) e.getNewValue();
-            recipientLabel.setText(chat.toString());
-            chatContainer.setText("");
-            JLabel newChatLabel = new JLabel(chat.toString());
-            newChatLabel.setForeground(Color.WHITE);
-            groupList.add(newChatLabel);
-            groupList.revalidate();
-            for (Message msg: chat.getLog()) {
-                chatContainer.append(msg.toString());
-            }
+            viewChat(chat);
+        }
+        if ("noConnection".equals(e.getPropertyName())) {
+            JOptionPane.showMessageDialog(frame,
+                "jChat could not connect to the server specified in the config file " +
+                "\n"+e.getNewValue(),
+                "Connection Error",JOptionPane.ERROR_MESSAGE);
+        }
+        if ("wrongConfig".equals(e.getPropertyName())) {
+            JOptionPane.showMessageDialog(frame,
+                "Make sure the config file is correctly formatted" +
+                "\n"+e.getNewValue(),
+                "Config Error",
+                JOptionPane.ERROR_MESSAGE);
         }
     }
 
