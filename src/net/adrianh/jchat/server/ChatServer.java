@@ -1,9 +1,20 @@
 package net.adrianh.jchat.server;
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import net.adrianh.jchat.shared.*;
 
+import net.adrianh.jchat.shared.Chat;
+import net.adrianh.jchat.shared.JoinRequest;
+import net.adrianh.jchat.shared.Message;
+import net.adrianh.jchat.shared.User;
+
+import java.io.*;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.*;
+
+/**
+ * The server-side application. Handles messages and keeps track of chat rooms
+ * @author Adrian Håkansson, adrhak@student.chalmers.se
+ * @version 2020/03/08
+ */
 public class ChatServer {
     private static final String FILE_PATH = System.getProperty("user.home")+"/jChat-server";
     private static final int PORT = 64206;
@@ -18,6 +29,9 @@ public class ChatServer {
         readSavedLog(defaultChat);
     }
 
+    /**
+     * Starts the server
+     */
     private void start() {
         try (ServerSocket servSocket = new ServerSocket(PORT)) {
             while (true) {
@@ -38,6 +52,10 @@ public class ChatServer {
         }
     }
 
+    /**
+     * Gets the currently connected clients
+     * @return the map of current clients
+     */
     public HashMap<ClientHandler,User> getCurrentClients() {
         return this.currentClients;
     }
@@ -47,7 +65,10 @@ public class ChatServer {
         server.start();
     }
 
-    // Send the message to every client in currentClients
+    /**
+     * Sends a message to every active client belonging to the group of the message
+     * @param msg the message to be sent
+     */
     public void broadcastMessage(Message msg) {
         Chat chat = this.defaultChat;
         // Find the chat (if it's not the default)
@@ -73,14 +94,24 @@ public class ChatServer {
         }
     }
 
+    /**
+     * Removes a client from the list of currently active clients
+     * @param c the client to be removed
+     */
     public void removeClient(ClientHandler c) {
         currentClients.remove(c);
     }
 
+    /**
+     * Gets the set of all chats created
+     * @return the set of all chats
+     */
     public Set<Chat> getChatSet() { return this.chatSet;}
 
-    public Chat getDefaultChat() { return this.defaultChat;}
-
+    /**
+     * Reads a saved chat object from a location on disk
+     * @param c the chat to be read
+     */
     public void readSavedLog(Chat c) {
         try {
             File file = new File(FILE_PATH+"/logs/"+c.getName()+".txt");
@@ -110,6 +141,12 @@ public class ChatServer {
         private ObjectInputStream ois;
         private ObjectOutputStream oos;
 
+        /**
+         * @param server the parent server object
+         * @param socket the socket for the connection to the client
+         * @param ois the object input stream
+         * @param oos the object output stream
+         */
         public ClientHandler(ChatServer server, Socket socket, ObjectInputStream ois, ObjectOutputStream oos) {
             this.server = server;
             this.socket = socket;
@@ -117,6 +154,9 @@ public class ChatServer {
             this.oos = oos;
         }
 
+        /**
+         * Waits for client to identify with a username
+         */
         public void initialConnection() {
 
             // Wait for client to identify itself and add the client to currentClients
@@ -129,7 +169,10 @@ public class ChatServer {
             }
         }
 
-        // Handles join requests
+        /**
+         * Adds the client to the requested chat or creates the chat if it does not exist
+         * @param request the request to be processed
+         */
         private void joinChat(JoinRequest request) {
             for (Chat c: server.getChatSet()) {
                 if (request.getChatRequest().equals(c.getName())) {
@@ -157,9 +200,15 @@ public class ChatServer {
 
         }
 
-
+        /**
+         * Gets the object output stream
+         * @return the object output stream
+         */
         public ObjectOutputStream getOutputStream() { return this.oos;}
 
+        /**
+         * Handles both incoming messages and join requests
+         */
         @Override
         public void run() {
             initialConnection();

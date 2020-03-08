@@ -7,19 +7,24 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.DefaultCaret;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashSet;
 import java.util.Set;
 
-// Överväg att bygga egna Observer/Observable-gränssnitt/hjälpklasser
-// med lämplig typparametrisering.
+/**
+ * Contains all of the graphical elements of the program
+ * @author Johan Fridlund, johfridl@student.chalmers.se
+ * @version 2020/03/08
+ */
 public class GUI implements PropertyChangeListener {
 
-    // static final
-    private static final int width = 960; //should these be static final if we want to change width / height?
-    private static final int height = 540; //should these be static final if we want to change width / height?
+    private static final int width = 960;
+    private static final int height = 540;
     private Login loginDialog;
 
     private JFrame frame;
@@ -45,10 +50,15 @@ public class GUI implements PropertyChangeListener {
         renderWindow();
     }
 
-    // returns this class's frame (maybe overkill comment?)
+    /**
+     * Gets the root frame of the GUI
+     * @return the root frame
+     */
     public JFrame getFrame() {return this.frame;}
 
-    // Creates a frame for the GUI with the name "jChat", uses static final variables width and height.
+    /**
+     * Creates the root frame
+     */
     private void makeFrame() {
         frame = new JFrame("jChat");
         frame.setMinimumSize(new Dimension(width,height));
@@ -57,7 +67,9 @@ public class GUI implements PropertyChangeListener {
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 
-    //Sidebar panel (Profile, friends etc)
+    /**
+     * Creates the sidebar panel
+     */
     private void makeSidebar() {
         sidebarPanel = new JPanel();
         sidebarPanel.setPreferredSize(new Dimension(280,0));
@@ -66,13 +78,18 @@ public class GUI implements PropertyChangeListener {
         sidebarPanel.setBackground(new Color(32, 34, 37));
     }
 
+    /**
+     * Creates the main chat panel
+     */
     private void makeChatPanel() {
         chatPanel = new JPanel();
         chatPanel.setLayout(new BorderLayout());
         chatPanel.setBackground(new Color(54, 57, 63));
     }
 
-    // makes the profile view in the UI which includes profile name, profile picture...
+    /**
+     * Creates the profile panel
+     */
     private void makeProfileView() {
         profileOverview = new JPanel();
         profileOverview.setLayout(new BorderLayout());
@@ -94,8 +111,9 @@ public class GUI implements PropertyChangeListener {
         profileName.setForeground(Color.WHITE);
     }
 
-    // creates the tabs (currently below profile view) such as friend list, groups, settings. 
-    // (this entire method might be removed / replaced due to different implementation?)
+    /**
+     * Creates the different sidebar panel tabs
+     */
     private void makeTabs() {
         contactTabs = new JTabbedPane();
         JPanel groupTab = new JPanel();
@@ -122,11 +140,13 @@ public class GUI implements PropertyChangeListener {
 
 
         contactTabs.addTab("Groups", groupTab);
-        contactTabs.addTab("Settings", new JPanel());
         contactTabs.setBorder(null);
+        contactTabs.setMinimumSize(new Dimension(280,0));
     }
 
-
+    /**
+     * Creates the header panel for the chat panel
+     */
     private void makeHeader() {
         header = new JPanel();
         header.setLayout(new BorderLayout());
@@ -141,7 +161,9 @@ public class GUI implements PropertyChangeListener {
         recipientLabel.setBorder(new EmptyBorder(0,10,0,0));
     }
 
-    // chat container which "holds" all chat messages (implement a load of old messages?)
+    /**
+     * Creates the text area container for the chat messages
+     */
     private void makeChatContainer() {
         chatContainer = new JTextArea();
         chatContainer.setLayout(new BoxLayout(chatContainer, BoxLayout.Y_AXIS));
@@ -158,7 +180,9 @@ public class GUI implements PropertyChangeListener {
         caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
     }
 
-    // creates the message box which allows the user to enter and send messages
+    /**
+     * Creates the message box and send button
+     */
     private void makeMessageBox() {
         messagePanel = new JPanel();
         messagePanel.setPreferredSize(new Dimension(0,65));
@@ -195,6 +219,9 @@ public class GUI implements PropertyChangeListener {
         });
     }
 
+    /**
+     * Assembles all the UI elements
+     */
     private void assembleBody() {
         //Adding content to mainframe
         messagePanel.add(messageBox);
@@ -212,6 +239,10 @@ public class GUI implements PropertyChangeListener {
     }
 
     // collection method for creating the entire body of the GUI, different methods instead of a large method to generalize.
+
+    /**
+     * Invokes all the methods creating the UI elements
+     */
     private void makeBody() {
         makeSidebar();
         makeChatPanel();
@@ -223,37 +254,65 @@ public class GUI implements PropertyChangeListener {
         assembleBody();
     }
 
-    // renders the window
+    /**
+     * Renders the window
+     */
     private void renderWindow(){
         frame.pack();
     }
 
-    // get methods
-
+    /**
+     * Gets the send button
+     * @return the send button
+     */
     public JButton getSendButton() {
         return this.sendButton;
     }
 
+    /**
+     * Gets the message box
+     * @return the message box
+     */
     public JTextField getMessageBox() {
         return  this.messageBox;
     }
 
+    /**
+     * Gets the text field for joining groups
+     * @return the search field
+     */
     public JTextField getGroupSearchField() {
         return this.groupSearchField;
     }
 
+    /**
+     * Gets the join button
+     * @return the join button
+     */
     public JButton getGroupJoinButton() {
         return this.groupJoinButton;
     }
 
+    /**
+     * Gets the login dialog box
+     * @return the login dialog object
+     */
     public Login getLoginDialog() {
         return this.loginDialog;
     }
 
+    /**
+     * Changes the visibility of the root frame
+     * @param visible the new visibility status
+     */
     public void setVisible(boolean visible) {
         frame.setVisible(visible);
     }
 
+    /**
+     * Displays a given chat log in the chat container
+     * @param c the new chat to display
+     */
     private void viewChat(Chat c) {
         recipientLabel.setText(c.toString());
         chatContainer.setText("");
@@ -269,6 +328,11 @@ public class GUI implements PropertyChangeListener {
             chatContainer.append(msg.toString());
         }
     }
+
+    /**
+     * Adds a new gruop to the sidebar tab
+     * @param label the label to be added
+     */
     public void addGroupLabel(JLabel label) {
         label.setForeground(Color.WHITE);
         chatsJoined.add(label);
@@ -276,6 +340,10 @@ public class GUI implements PropertyChangeListener {
         groupList.revalidate();
     }
 
+    /**
+     * Observes different changes in the model
+     * @param e the triggered event
+     */
     @Override
     public void propertyChange(PropertyChangeEvent e) {
         if ("newMsg".equals(e.getPropertyName())) {
@@ -303,12 +371,20 @@ public class GUI implements PropertyChangeListener {
         }
     }
 
+    /**
+     * Displays a login dialog box
+     * @author Alexander Tepic, tepic@student.chalmers.se
+     * @version 2020/03/08
+     */
     static class Login {
 
         private JDialog dialog;
         private JTextField txtfldUsername = new JTextField(24);
         private JButton buttonLogin = new JButton("Login");
 
+        /**
+         * @param parent The main GUI object
+         */
         public Login(GUI parent) {
             dialog = new JDialog(parent.getFrame());
 
@@ -331,13 +407,36 @@ public class GUI implements PropertyChangeListener {
             });
         }
 
+        /**
+         * Changes the visibility of the login box
+         * @param visible the new visibility status
+         */
         public void setVisible(boolean visible) {
             this.dialog.setVisible(visible);
         }
 
+        /**
+         * Gets the dialog box
+         * @return the dialog box
+         */
         public JDialog getDialog() {return this.dialog;}
+
+        /**
+         * Gets the text field of the dialog box
+         * @return the text field
+         */
         public JTextField getLoginTextField() {return this.txtfldUsername;}
+
+        /**
+         * Gets the text of the dialog box's text field
+         * @return the text field value
+         */
         public String getNameInput() {return this.txtfldUsername.getText();}
+
+        /**
+         * Gets the send button
+         * @return the send button
+         */
         public JButton getSendButton() {return this.buttonLogin;}
 
     }

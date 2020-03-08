@@ -3,27 +3,41 @@ package net.adrianh.jchat.shared;
 import java.io.Serializable;
 import java.util.Objects;
 
+/**
+ * Contains information about a message such as the text, the sender and the chat
+ * it belongs to
+ * @author Adrian Håkansson, adrhak@student.chalmers.se
+ * @version 2020/03/08
+ */
 public final class Message implements Serializable {
 
     private String msg;
     private User sender;
     private String chat;
 
+    /**
+     * @param sender the user sending the message
+     * @param msg the text of the message
+     * @param chat the chat the message is sent in
+     */
     public Message(User sender, String msg, String chat) {
         this.sender = sender;
         this.msg = msg;
         this.chat = chat;
     }
 
-
-    public String getMsg() {
-        return this.msg;
-    }
-
+    /**
+     * Gets the sending user
+     * @return the sending user
+     */
     public User getSender() {
         return this.sender;
     }
 
+    /**
+     * Gets the chat object
+     * @return the chat
+     */
     public String getChat() {
         return this.chat;
     }
